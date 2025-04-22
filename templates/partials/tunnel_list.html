@@ -1,0 +1,18 @@
+<div class="list-group">
+    {% if tunnels|length == 0 %}
+        <p>No active tunnels</p>
+    {% else %}
+        {% for tunnel in tunnels %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">{{ tunnel.name }}</h5>
+                    <p class="mb-1">Source: {{ tunnel.src_ip }}:{{ tunnel.src_port }} → Destination: {{ tunnel.dst_ip }}:{{ tunnel.dst_port }}</p>
+                    <small>Protocol: {{ tunnel.protocol }}</small>
+                </div>
+                <form action="/stop/{{ tunnel.id }}" method="post" class="ajax">
+                    <button type="submit" class="btn btn-danger btn-sm">Stop</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>

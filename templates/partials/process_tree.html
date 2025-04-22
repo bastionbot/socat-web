@@ -1,0 +1,27 @@
+<ul class="list-group">
+    {% if process_tree|length == 0 %}
+        No socat processes
+    {% else %}
+        {% for proc in process_tree %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>PID:</strong> {{ proc.pid }} – {{ proc.cmd }}
+                    </div>
+                </div>
+                {% if proc.children %}
+                    <ul class="list-group mt-2">
+                        {% for child in proc.children %}
+                            <li class="list-group-item">
+                                <form action="/stop_pid/{{ child.pid }}" method="post" class="ajax"></form>
+                                    <strong>Child PID:</strong> {{ child.pid }} – {{ child.cmd }}
+                                    <button type="submit" class="btn btn-danger btn-sm">Stop</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+        {% endfor %}
+    {% endif %}
+</ul>

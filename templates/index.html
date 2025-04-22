@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socat Tunnel Manager</title>
+    <script src="/static/app.js"></script> <!-- JS included in the head -->
+    <script src="/static/bootstrap.min.js"></script>
+    <script src="/static/popper.min.js"></script>
+    <script src="/static/jquery-3.7.1.min.js"></script>
+    <link href="/static/styles.css" rel="stylesheet">
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-4">
+        <h1 class="text-center mb-4">Socat Tunnel Manager</h1>
+
+        <!-- Button to trigger modal -->
+        <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#tunnelModal">Start a New Tunnel</button>
+
+        <!-- Modal for Tunnel Creation -->
+        <div class="modal fade" id="tunnelModal" tabindex="-1" aria-labelledby="tunnelModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tunnelModalLabel">Create a New Tunnel</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/start" method="post" class="ajax">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tunnel Name:</label>
+                                <input type="text" id="name" name="name" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="protocol" class="form-label">Protocol:</label>
+                                <select id="protocol" name="protocol" class="form-select" required>
+                                    <option value="tcp">TCP</option>
+                                    <option value="udp">UDP</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="src_ip" class="form-label">Listen IP:</label>
+                                <input type="text" id="src_ip" name="src_ip" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="src_port" class="form-label">Listen Port:</label>
+                                <input type="number" id="src_port" name="src_port" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="dst_ip" class="form-label">Destination IP:</label>
+                                <input type="text" id="dst_ip" name="dst_ip" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="dst_port" class="form-label">Destination Port:</label>
+                                <input type="number" id="dst_port" name="dst_port" class="form-control" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Start Tunnel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Tunnels -->
+        <h3>Active Tunnels</h3>
+        <div id="tunnel-list">
+            {% include "partials/tunnel_list.html" %}
+        </div>
+
+        <!-- Process Tree -->
+        <h3>Process Tree</h3>
+        <div id="process-tree">
+            {% include "partials/process_tree.html" %}
+        </div>
+    </div>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+{% endif %}
+<script>
+    document.querySelector('form.ajax').addEventListener('submit', async function(event) {
+        event.preventDefault();  // Prevent default form submission
+    
+        const formData = new FormData(this);  // Get form data
+
+        try {
+            const response = await fetch('/start', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // After the form is successfully submitted, update the active tunnel list
+                await reloadPartials()
+
+                // Close the modal after submission
+                $('#tunnelModal').modal('hide');  // Close the modal with id 'tunnelModal'
+
+            } else {
+                // Handle errors if any
+                alert('Error starting tunnel');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong!');
+        }
+    });
+
+</script>
+</body>
+</html>
